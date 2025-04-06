@@ -1,108 +1,105 @@
 import random
+import os
 
-print("Welcome to Bible Hangman")
-print("********************************************")
+def clear_screen():
+    os.system('clear' if os.name == 'posix' else 'cls')
 
-wordDictionary = ["Angel", "Isaiah", "Noah", "Ark", "Commandments", "Deuteronomy", "light", "Temple", "Clay", "Garden"]
+def display_title():
+    print("Welcome to Bible Hangman")
+    print("********************************************")
 
-### Choose a random word
-randomword = random.choice(wordDictionary)
+wordDictionary = [
+    "Angel", "Isaiah", "Noah", "Ark", "Commandments", 
+    "Deuteronomy", "Light", "Temple", "Clay", "Garden",
+    "Jesus", "Moses", "David", "Solomon", "Abraham"
+]
 
-for x in randomword:
-    print("_", end="")
+def get_valid_input():
+    while True:
+        guess = input("\nGuess a letter: ").upper()
+        if len(guess) != 1:
+            print("Please enter a single letter!")
+            continue
+        if not guess.isalpha():
+            print("Please enter a letter!")
+            continue
+        return guess
 
 def print_hangman(wrong):
-    if(wrong == 0):
-        print("\n+---+")
-        print("    |")
-        print("    |")
-        print("    |")
-        print("   ===")
-    elif(wrong == 1):
-        print("\n+---+")
-        print("o   |")
-        print("    |")
-        print("    |")
-        print("   ===")
-    elif(wrong == 2):
-        print("\n+---+")
-        print("o   |")
-        print("|   |")
-        print("    |")
-        print("   ===")
-    elif(wrong == 3):
-        print("\n+---+")
-        print(" o  |")
-        print("/|  |")
-        print("    |")
-        print("   ===")
-    elif(wrong == 4):
-        print("\n+---+")
-        print(" o  |")
-        print("/|\ |")
-        print("    |")
-        print("   ===")
-    elif(wrong == 5):
-        print("\n+---+")
-        print(" o  |")
-        print("/|\ |")
-        print("/   |")
-        print("   ===")
-    elif(wrong == 6):
-        print("\n+---+")
-        print(" o  |")
-        print("/|\ |")
-        print("/ \ |")
-        print("   ===")
+    stages = [
+        "\n+---+\n    |\n    |\n    |\n   ===",
+        "\n+---+\no   |\n    |\n    |\n   ===",
+        "\n+---+\no   |\n|   |\n    |\n   ===",
+        "\n+---+\n o  |\n/|  |\n    |\n   ===",
+        "\n+---+\n o  |\n/|\ |\n    |\n   ===",
+        "\n+---+\n o  |\n/|\ |\n/   |\n   ===",
+        "\n+---+\n o  |\n/|\ |\n/ \ |\n   ==="
+    ]
+    print(stages[wrong])
 
-def printWord(guessedLetters):
-    counter=0
-    rightLetters=0
-    for char in randomword:
-        if(char in guessedLetters):
-            print(randomword[counter], end=" ")
-            rightLetters+=1
+def print_word(word, guessed_letters):
+    displayed_word = ''
+    right_letters = 0
+    for char in word:
+        if char.upper() in guessed_letters:
+            displayed_word += char + " "
+            right_letters += 1
         else:
-            print(" ", end=" ")
-        counter+=1
-    return rightLetters
+            displayed_word += "_ "
+    print(displayed_word)
+    return right_letters
 
-def printLine():
-    print("\r")
-    for char in randomword:
-        print("\u203E", end=" ")
+def play_game():
+    clear_screen()
+    display_title()
+    
+    random_word = random.choice(wordDictionary).upper()
+    guessed_letters = set()
+    wrong_guesses = 0
+    max_attempts = 6
+    
+    print("\nYour word has", len(random_word), "letters:")
+    print_word(random_word, guessed_letters)
 
-length_of_word_to_guess = len(randomword)
-amount_of_times_wrong = 0
-current_guess_index = 0
-current_letters_guessed = []
-current_letters_right = 0
+    while wrong_guesses < max_attempts:
+        print("\nLetters guessed:", " ".join(sorted(guessed_letters)))
+        print(f"Attempts remaining: {max_attempts - wrong_guesses}")
+        
+        guess = get_valid_input()
+        
+        if guess in guessed_letters:
+            print("You already guessed that letter!")
+            continue
+            
+        guessed_letters.add(guess)
+        
+        if guess not in random_word:
+            wrong_guesses += 1
+            print("\nWrong guess!")
+        else:
+            print("\nCorrect guess!")
+            
+        print_hangman(wrong_guesses)
+        correct_letters = print_word(random_word, guessed_letters)
+        
+        if correct_letters == len(random_word):
+            print("\nCongratulations! You won! 🎉")
+            print(f"The word was: {random_word}")
+            return True
+            
+    print("\nGame Over! 😢")
+    print(f"The word was: {random_word}")
+    return False
 
-while(amount_of_times_wrong != 6 and current_letters_right != length_of_word_to_guess):
-    print("\n Letters guessed so far: ")
-    for letter in current_letters_guessed:
-        print(letter, end=" ")
-        ### Prompt user for input
-    letterGuessed = input("\nGuess a letter: ")
-    ##### User is right
-    if(randomword[current_guess_index] == letterGuessed):
-        print_hangman(amount_of_times_wrong)
-        ### Print word
-        current_guess_index+=1
-        current_letters_guessed.append(letterGuessed)
-        current_letters_right = printWord(current_letters_guessed)
-        printLine()
-        ### User was wrong
-    else:
-        amount_of_times_wrong+=1
-        current_letters_guessed.append(letterGuessed)
-        ### Update the drawiing
-        print_hangman(amount_of_times_wrong)
-        ###Print out word
-        current_letters_right = printWord(current_letters_guessed)
-        printLine()
+def main():
+    while True:
+        play_game()
+        if input("\nPlay again? (y/n): ").lower() != 'y':
+            print("\nThanks for playing Bible Hangman!")
+            break
 
-print("Game is over. Thank you for playing!")
+if __name__ == "__main__":
+    main()
 
 
 
