@@ -19,7 +19,10 @@ A command-line Bible-themed Hangman game written in Python.
 
 ## Installation
 ```bash
-git clone https://github.com/YOUR_USERNAME/bible-hangman.git
+git clone https://github.com/tsakane28/bible-hangman.git
 cd bible-hangman
 python main.py
 ```
+
+## Author
+- [Tsakane](https://github.com/tsakane28)
